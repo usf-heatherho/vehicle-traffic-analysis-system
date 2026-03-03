@@ -7,7 +7,7 @@ class VehicleDetector:
     
     This class loads a pre-trained YOLO model and provides a method to detect vehicles in video frames.
     """
-    def __init__(self, model_path='yolov8n.pt'): # The 'yolov8n.pt' is a pre-trained model that can be used for vehicle detection.
+    def __init__(self, model_path='models\yolov8n.pt'): # The 'yolov8n.pt' is a pre-trained model that can be used for vehicle detection.
         """
         Intializes the detector with a YOLO model.
 
