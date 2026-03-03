@@ -44,7 +44,7 @@ def main():
     
     detector = VehicleDetector() 
     tracker = VehicleTracker()
-    counter = LineCounter(line_position=0.70)  # Line at 50% of frame height
+    counter = LineCounter()
 
     # Loop until video ends or user presses ESC
     while True:
@@ -54,8 +54,7 @@ def main():
             break
 
         height, width, channels = frame.shape
-        print(f"Processing frame of size: {width}x{height}")
-        # input("Press Enter to process the next frame...")
+        print(f"Processing frame of size: {width}x{height}, channels: {channels}")
 
         # Detect vehicles in the current frame
         detections = detector.detect_vehicles(frame)
@@ -63,14 +62,11 @@ def main():
         # Track detected vehicles across frames using DeepSORT
         tracks = tracker.update(detections, frame)
 
-        # A virtual line to check if tracked objects cross it.
-        line_y = int(frame.shape[0] * counter.line_position)
-
         # Update the line counter with current tracks and frame height
         counts = counter.update(tracks, frame.shape[0])
 
-        # cv2.line(frame, (0, line_y), (frame.shape[1], line_y), (0,255,0), 2)
-        cv2.line(frame, (0, 1060), (1919, 500), (0,255,0), 2)
+        # Car counting line (green line across the frame)
+        cv2.line(frame, (0, 1060), (1919, 300), (0,255,0), 2)
 
 
         # Draw counters for in an out counts
@@ -84,14 +80,6 @@ def main():
             center_x = int((x1 + x2) / 2)
             center_y = int((y1 + y2) / 2)
             cv2.circle(frame, (center_x, center_y), 5, (0, 0, 255), -1)
-
-
-
-
-
-
-
-
 
         # Draw bounding boxes and labels for each tracked object
         for track in tracks:
@@ -110,12 +98,11 @@ def main():
         cv2.imshow("Vehicle Detection", frame)
 
         # Waits for 1 ms and checks if the ESC key is pressed to exit the loop
-        if cv2.waitKey(1) & 0xFF == 27: # Press 'ESC' to exit
+        if cv2.waitKey(1) & 0xFF == 27:
             break
 
     # Release video capture and close windows
     cap.release()
-    input("Press Enter to close the video window...")
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":

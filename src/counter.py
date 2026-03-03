@@ -1,71 +1,110 @@
 class LineCounter:
     """
-    Detects when tracked objects cross a virtual line in the frame and counts entries and exits.
+    Counts tracked objects that cross a predefined diagonal line
+    using geometric side-of-line detection.
 
-    The counter maintains a history of tracked object positions to determine when they cross a predefined line in the frame. 
-    It updates entry and exit counts based on the direction of crossing.
+    This class maintains per-track state and detects when the centroid
+    of a tracked object moves from one side of the counting line to the other.
+    Crossing direction determines whether the object is counted as an entry
+    or exit event.
     """
-    def __init__(self, line_position: float):
-        """
-        Initialize the LineCounter.
 
-        Args:
-            line_position (float): The vertical position of the counting line as a fraction of frame height (e.g., 0.5 for middle).
+    def __init__(self):
+        """
+        Initialize the LineCounter with a fixed diagonal counting line.
+
+        The line is defined by two endpoints in pixel coordinates.
+        Objects are classified relative to this line using the sign
+        of a 2D cross product.
         """
 
-        self.line_position = line_position  # Line at 50% of frame height
+        # Define diagonal counting line (pixel coordinates)
+        self.line_p1 = (0, 1060)
+        self.line_p2 = (1919, 300)
+
+        # Track ID -> previous side value
         self.track_history = {}
+
+        # Track IDs already counted to prevent double counting
         self.counted_ids = set()
+
         self.enter_count = 0
         self.exit_count = 0
 
-    def update(self, tracks, frame_height: int):
+    def _compute_side(self, cx, cy):
         """
-        Update the counter with the current tracked objects.
+        Compute which side of the counting line a point lies on.
+
+        Uses the 2D cross product to determine relative position.
 
         Args:
-            tracks (list[dict]): List of tracked objects with 'id' and 'box' (x1, y1, x2, y2).
-            frame_height (int): The height of the video frame to calculate line position.  
+            cx (float): X-coordinate of object centroid.
+            cy (float): Y-coordinate of object centroid.
 
-        Returns:            
-            dict: Updated counts with 'enter_count' and 'exit_count'.
+        Returns:
+            float: Signed value indicating which side of the line
+                   the point lies on. Positive and negative values
+                   represent opposite sides of the line.
         """
 
-        # A virtual line to check if tracked objects cross it.
-        line_y = int(frame_height * self.line_position)
+        x1, y1 = self.line_p1
+        x2, y2 = self.line_p2
+
+        return (x2 - x1) * (cy - y1) - (y2 - y1) * (cx - x1)
+
+    def update(self, tracks):
+        """
+        Update entry and exit counts based on tracked object positions.
+
+        Args:
+            tracks (list of dict):
+                Each track must contain:
+                - "id": Unique track identifier
+                - "box": Bounding box tuple (x1, y1, x2, y2)
+
+        Returns:
+            dict:
+                {
+                    "enter_count": int,
+                    "exit_count": int
+                }
+        """
 
         for track in tracks:
-            # Calculate the initial center of the bounding box for the current track
-            track_id = track['id']
-            x1, y1, x2, y2 = track['box']
+            track_id = track["id"]
+            x1, y1, x2, y2 = track["box"]
 
-            # original_center_x = (x1 + x2) / 2
+            # Compute centroid of bounding box
+            cx = (x1 + x2) / 2.0
+            cy = (y1 + y2) / 2.0
 
-            center_y = (y1 + y2) / 2
+            current_side = self._compute_side(cx, cy)
 
-            # If car doesn't exist in track history
+            # If track did not exist before, initialize its history
             if track_id not in self.track_history:
-                self.track_history[track_id] = center_y
+                self.track_history[track_id] = current_side
                 continue
-            
-            # Update the track history with the current center y
-            prev_center_y = self.track_history[track_id]
 
-            # Only check for crossing if the track ID hasn't been counted yet
+            prev_side = self.track_history[track_id]
+
+            # Only count once per track
             if track_id not in self.counted_ids:
-                # Crossing from above to below
-                if prev_center_y < line_y <= center_y:  
-                    self.exit_count += 1
+
+                # Crossing occurs if sign changes
+                if prev_side * current_side < 0:
+
+                    # Direction classification
+                    if prev_side > 0 and current_side < 0:
+                        self.enter_count += 1
+                    else:
+                        self.exit_count += 1
+
                     self.counted_ids.add(track_id)
 
-                # Crossing from below to above
-                elif prev_center_y > line_y >= center_y:  
-                    self.enter_count += 1
-                    self.counted_ids.add(track_id)
-            
-            # Update track history with the current center y for the next frame
-            self.track_history[track_id] = center_y
+            # Update history for next frame
+            self.track_history[track_id] = current_side
 
-            print(f"Track ID: {track_id}, Center Y: {center_y}, Line Y: {line_y}, Enter Count: {self.enter_count}, Exit Count: {self.exit_count}")
-        return {"enter_count": self.enter_count, "exit_count": self.exit_count, "line_y": line_y}
-
+        return {
+            "enter_count": self.enter_count,
+            "exit_count": self.exit_count
+        }
