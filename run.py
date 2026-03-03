@@ -1,6 +1,7 @@
 import cv2
 from src.detector import VehicleDetector
 from src.tracker import VehicleTracker
+from src.counter import LineCounter
 
 def main():
     """
@@ -43,6 +44,7 @@ def main():
     
     detector = VehicleDetector() 
     tracker = VehicleTracker()
+    counter = LineCounter(line_position=0.70)  # Line at 50% of frame height
 
     # Loop until video ends or user presses ESC
     while True:
@@ -51,11 +53,45 @@ def main():
         if not ret:
             break
 
+        height, width, channels = frame.shape
+        print(f"Processing frame of size: {width}x{height}")
+        # input("Press Enter to process the next frame...")
+
         # Detect vehicles in the current frame
         detections = detector.detect_vehicles(frame)
         
         # Track detected vehicles across frames using DeepSORT
         tracks = tracker.update(detections, frame)
+
+        # A virtual line to check if tracked objects cross it.
+        line_y = int(frame.shape[0] * counter.line_position)
+
+        # Update the line counter with current tracks and frame height
+        counts = counter.update(tracks, frame.shape[0])
+
+        # cv2.line(frame, (0, line_y), (frame.shape[1], line_y), (0,255,0), 2)
+        cv2.line(frame, (0, 1060), (1919, 500), (0,255,0), 2)
+
+
+        # Draw counters for in an out counts
+        cv2.putText(frame,  f"IN: {counts['enter_count']}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f"OUT: {counts['exit_count']}", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+
+        
+        # Draw centroid for each tracked object
+        for track in tracks:
+            x1, y1, x2, y2 = track['box']
+            center_x = int((x1 + x2) / 2)
+            center_y = int((y1 + y2) / 2)
+            cv2.circle(frame, (center_x, center_y), 5, (0, 0, 255), -1)
+
+
+
+
+
+
+
+
 
         # Draw bounding boxes and labels for each tracked object
         for track in tracks:
@@ -69,6 +105,7 @@ def main():
             print(f"Track ID: {track_id}, Label: {label}, Box: ({x1}, {y1}, {x2}, {y2})")
             print(f"Tracks this frame: {len(tracks)}")
 
+
         # Creates a window and displays the frame with detected vehicles
         cv2.imshow("Vehicle Detection", frame)
 
@@ -78,7 +115,8 @@ def main():
 
     # Release video capture and close windows
     cap.release()
+    input("Press Enter to close the video window...")
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    main()
+    main() # Entry point for standalone execution
