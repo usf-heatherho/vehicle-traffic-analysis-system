@@ -1,3 +1,7 @@
 venv/
 outputs/
 __pycache__/
+*.pyc
+README.md
+traffic_analysis_output.mp4
+moving_cars_highway.mp4
