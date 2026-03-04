@@ -77,7 +77,6 @@ class VehicleTracker:
                     int(bbox[3]),
                 )
             })
-
-        print(output)
+            
         return output
     

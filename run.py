@@ -22,21 +22,22 @@ def main():
         Display + Save Output
     """
     
-    cap = cv2.VideoCapture("data/highway_traffic_15.mp4") # Sample video path
+    cap = cv2.VideoCapture("data/moving_cars_highway.mp4") # Sample video path
     
     detector = VehicleDetector() 
     tracker = VehicleTracker()
     counter = LineCounter()
     visualizer = FrameVisualizer()
 
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter('outputs/traffic_analysis_output.mp4', fourcc, 30.0, (1920, 1080)) # Output video writer
+
+
     # Loop until video ends or user presses ESC
     while True:
         ret, frame = cap.read()
         if not ret:
             break
-
-        height, width, channels = frame.shape
-        print(f"Processing frame of size: {width}x{height}, channels: {channels}")
 
         # Detect vehicles in the current frame
         detections = detector.detect_vehicles(frame)
@@ -47,8 +48,11 @@ def main():
         # Update the line counter with current tracks and frame height
         counts = counter.update(tracks)
 
-        #  Visualize the results on the frame and drawings
+        # Visualize the results on the frame and drawings
         frame = visualizer.draw(frame, tracks, counts['enter_count'], counts['exit_count'])
+
+        # Write the processed frame to the output video
+        out.write(frame)
 
         # Creates a window and displays the frame with detected vehicles
         cv2.imshow("Traffic Analytics System", frame)
@@ -58,7 +62,7 @@ def main():
             break
 
     # Release video capture and close windows
-    input("Press Enter to exit...")
+    out.release()
     cap.release()
     cv2.destroyAllWindows()
 
