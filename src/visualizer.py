@@ -12,8 +12,8 @@ class FrameVisualizer:
         cv2.line(frame, (0, 1060), (1919, 300), (0,255,0), 2)
 
         # Draw counters for in an out counts
-        cv2.putText(frame,  f"IN: {enter_count}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        cv2.putText(frame, f"OUT: {exit_count}", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(frame,  f"INBOUND: {enter_count}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f"OUTBOUND: {exit_count}", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
         # Draw centroid for each tracked object
         for track in tracks:

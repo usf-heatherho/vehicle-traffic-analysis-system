@@ -22,7 +22,7 @@ def main():
         Display + Save Output
     """
     
-    cap = cv2.VideoCapture("data/moving_cars_highway.mp4") # Sample video path
+    cap = cv2.VideoCapture("data\\moving_traffic_10.mp4") # Sample video path
     
     detector = VehicleDetector() 
     tracker = VehicleTracker()
