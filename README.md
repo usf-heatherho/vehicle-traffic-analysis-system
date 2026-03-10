@@ -107,17 +107,17 @@ a traffic flow region.
 ## ▶️ How to Run
 
 ### 1️. Clone the repository
-
+```
 git clone https://github.com/usf-heather-ho/traffic-analytics-system.git
 cd traffic-analytics-system
-
+```
 ### 2️. Install dependencies
 
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 ### 3️. Run the application
 
-python run.py
+`python run.py`
 
 Press ESC to exit the video window.
 
