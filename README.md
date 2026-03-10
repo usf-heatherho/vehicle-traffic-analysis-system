@@ -1,4 +1,4 @@
-# 🚗 Real-Time Traffic Analytics System
+# 🚗 Real-Time Traffic Analysis System
 
 A real-time computer vision system that detects, tracks, and analyzes
 vehicle traffic from video using modern deep learning and multi-object
