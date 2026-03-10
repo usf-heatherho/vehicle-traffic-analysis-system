@@ -1,5 +1,5 @@
 """
-Real-Time Vehicle Traffic Analytics System
+Real-Time Vehicle Traffic Analysis System
 Author: Heather Ho
 Year: 2026
 """
