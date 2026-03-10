@@ -44,7 +44,7 @@ diagonal line, allowing direction-based traffic analytics.
 -   Persistent multi-object tracking with DeepSORT
 -   Geometric line-crossing detection using centroid-based crossing
     logic
--   Directional traffic counting (IN / OUT flow)
+-   Directional traffic counting (Inbound / Outbound flow)
 -   Real-time visualization with bounding boxes, IDs, and traffic
     metrics
 -   Modular architecture separating detection, tracking, analytics, and
