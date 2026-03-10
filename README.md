@@ -74,6 +74,7 @@ traffic-analytics-system/
 │
 ├── run.py               # Main pipeline execution
 ├── requirements.txt
+├── LICENSE
 └── README.md
 ```
 ------------------------------------------------------------------------
