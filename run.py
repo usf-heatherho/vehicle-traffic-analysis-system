@@ -1,3 +1,9 @@
+"""
+Real-Time Vehicle Traffic Analytics System
+Author: Heather Ho
+Year: 2026
+"""
+
 import cv2
 from src.detector import VehicleDetector
 from src.tracker import VehicleTracker
