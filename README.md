@@ -52,7 +52,7 @@ diagonal line, allowing direction-based traffic analytics.
 
 ------------------------------------------------------------------------
 
-## 🏗 Project Architecture
+## 📂 Project Architecture
 
 ```
 traffic-analytics-system/
